@@ -1,0 +1,171 @@
+import discord
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+# Command: !joke
+@bot.command()
+async def joke(ctx):
+    # Your code to fetch a random joke from an API or database goes here
+    joke = "Why don't scientists trust atoms? Because they make up everything!"
+    await ctx.send(joke)
+
+# Command: !meme
+@bot.command()
+async def meme(ctx):
+    # Your code to fetch a random meme from an API or database goes here
+    meme = "https://example.com/meme.jpg"
+    await ctx.send(meme)
+
+# Command: !roast <user>
+@bot.command()
+async def roast(ctx, user: discord.Member):
+    # Your code to generate a lighthearted roast for the mentioned user goes here
+    roast = f"Hey {user.mention}, you're so [adjective] that [funny roast]!"
+    await ctx.send(roast)
+
+# Command: !caption <image-url> <text>
+@bot.command()
+async def caption(ctx, image_url, *, text):
+    # Your code to overlay the provided text on the provided image URL and send it goes here
+    # You can use a library like PIL (Python Imaging Library) for image manipulation
+    await ctx.send(f"Captioned image: {image_url} - Text: {text}")
+
+# Command: !memeify <text>
+@bot.command()
+async def memeify(ctx, *, text):
+    # Your code to generate a meme-style image with the inputted text and send it goes here
+    # You can use a library like PIL (Python Imaging Library) for image manipulation
+    await ctx.send(f"Memeified image: {text}")
+
+# Command: !userinfo <user>
+@bot.command()
+async def userinfo(ctx, user: discord.Member):
+    # Your code to fetch and display detailed information about the mentioned user goes here
+    username = user.name
+    discriminator = user.discriminator
+    joined_at = user.joined_at.strftime("%Y-%m-%d %H:%M:%S")
+    roles = ", ".join([role.name for role in user.roles])
+    
+    user_info = f"Username: {username}\nDiscriminator: {discriminator}\nJoined At: {joined_at}\nRoles: {roles}"
+    await ctx.send(user_info)
+
+# Command: !meme_generator <top-text> <bottom-text> <image-url>
+@bot.command()
+async def meme_generator(ctx, top_text, bottom_text, image_url):
+    # Your code to generate a meme with the provided top text, bottom text, and image URL goes here
+    # You can use a library like PIL (Python Imaging Library) for image manipulation
+    await ctx.send(f"Meme generated with top text: {top_text}, bottom text: {bottom_text}, image URL: {image_url}")
+
+# Command: !dankify <text>
+@bot.command()
+async def dankify(ctx, *, text):
+    # Your code to convert the inputted text into a dank meme-style text goes here
+    dank_text = " ".join([c.upper() if random.random() < 0.5 else c.lower() for c in text])
+    await ctx.send(f"Dankified text: {dank_text}")
+
+# Command: !dadjoke
+@bot.command()
+async def dadjoke(ctx):
+    # Your code to fetch a dad joke from an API or database goes here
+    dad_joke = "Why don't eggs tell jokes? Because they might crack up!"
+    await ctx.send(dad_joke)
+
+# Command: !gif <search-query>
+@bot.command()
+async def gif(ctx, search_query):
+    # Your code to search for and display a GIF related to the provided search query goes here
+    gif_url = "https://example.com/gif.gif"
+    await ctx.send(gif_url)
+
+# Command: !wiki <search-query>
+@bot.command()
+async def wiki(ctx, search_query):
+    # Your code to search for and display a Wikipedia summary of the provided search query goes here
+    summary = "This is a Wikipedia summary."
+    await ctx.send(summary)
+
+# Command: !coinflip
+@bot.command()
+async def coinflip(ctx):
+    # Your code to simulate a coin flip and display the result goes here
+    result = "Heads" if random.random() < 0.5 else "Tails"
+    await ctx.send(f"The coin landed on {result}!")
+
+# Command: !remindme <time> <reminder-message>
+@bot.command()
+async def remindme(ctx, time, *, reminder):
+    # Your code to set a reminder for the specified time and send a reminder message goes here
+    # You can use a library like datetime to handle time calculations
+    await ctx.send(f"I will remind you '{reminder}' in {time}.")
+
+# Command: !poll <question> <option1> <option2> ...
+@bot.command()
+async def poll(ctx, question, *options):
+    # Your code to create a poll with the provided question and options goes here
+    poll_message = f"**{question}**\n\n"
+    for index, option in enumerate(options, start=1):
+        poll_message += f"{index}. {option}\n"
+
+    poll_embed = discord.Embed(title="Poll", description=poll_message, color=discord.Color.blue())
+    poll_embed.set_footer(text="React to vote!")
+
+    poll = await ctx.send(embed=poll_embed)
+
+    for index in range(1, len(options) + 1):
+        await poll.add_reaction(f"{index}\u20e3")
+
+# Event: Bot Ready
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+    print('Bot is ready!')
+
+# Event: Member Join
+@bot.event
+async def on_member_join(member):
+    # Your code to send a welcome message or perform actions when a member joins goes here
+    welcome_message = f"Welcome to the server, {member.mention}! Enjoy your stay."
+    await member.send(welcome_message)
+
+# Event: Member Leave
+@bot.event
+async def on_member_remove(member):
+    # Your code to send a farewell message or perform actions when a member leaves goes here
+    farewell_message = f"Goodbye, {member.name}. We'll miss you!"
+    await member.guild.system_channel.send(farewell_message)
+
+# Event: Message Received
+@bot.event
+async def on_message(message):
+    # Check if the message is from a bot to avoid potential loops
+    if message.author.bot:
+        return
+
+    # Process the message and perform actions based on its content
+    if message.content.startswith('!hello'):
+        await message.channel.send('Hello! How can I assist you?')
+
+    # Add more message processing logic as needed...
+
+    await bot.process_commands(message)
+
+# Event: Message Edit
+@bot.event
+async def on_message_edit(before, after):
+    # Your code to perform actions when a message is edited goes here
+    await after.channel.send("A message has been edited.")
+
+# Event: Message Delete
+@bot.event
+async def on_message_delete(message):
+    # Your code to perform actions when a message is deleted goes here
+    await message.channel.send("A message has been deleted.")
+
+# Add more commands and events as needed...
+
+# Replace 'YOUR_BOT_TOKEN' with your actual bot token
+bot.run('YOUR_BOT_TOKEN')
